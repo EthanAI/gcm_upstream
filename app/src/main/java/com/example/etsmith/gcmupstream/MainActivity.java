@@ -23,13 +23,15 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
     private final String TAG = getClass().getSimpleName();
 
-    public String senderID;
     public final String defaultIDName = "wigglesTheCat";
+    public final String defaultTopic = "/topics/myTopic";
+    public final String defaultText = "Test Message about Wiggles";
+
+    public String senderID;
     public String token = null;
 
     public GoogleCloudMessaging gcm;
     public GcmPubSub pubSub;
-    public InstanceID instanceID;
 
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private BroadcastReceiver mDownstreamBroadcastReceiver;
@@ -44,10 +46,10 @@ public class MainActivity extends AppCompatActivity {
                 unregisterClient();
                 break;
             case R.id.subscribe:
-                subscribeToTopic();
+                subscribeToTopic(defaultTopic);
                 break;
             case R.id.message:
-                sendMessage();
+                sendMessage(defaultText);
                 break;
         }
     }
@@ -59,20 +61,16 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "Package name: " + getApplicationContext().getPackageName());
         // If Play Services is not up to date, quit the app.
-        checkPlayServices();
         senderID = getString(R.string.gcm_defaultSenderId);
         Log.d(TAG, "SenderID: " + senderID);
 
         // Get singetons
         gcm = GoogleCloudMessaging.getInstance(this);
         pubSub = GcmPubSub.getInstance(this);
-        instanceID = InstanceID.getInstance(this);
-        Log.d(TAG, "InstanceID: " + instanceID.getId());
 
+        Log.d(TAG, "InstanceID: " + InstanceID.getInstance(getApplicationContext()).getId());
 
-
-
-        // Subscribe to Downstream messages
+        // Subscribe to Downstream messages. Also gets registration confirmation it seems.
         mDownstreamBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -104,26 +102,22 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(RegistrationConstants.NEW_DOWNSTREAM_MESSAGE));
 
 
-        //
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                boolean sentToken = intent.getBooleanExtra(
-                        RegistrationConstants.SENT_TOKEN_TO_SERVER, false);
-
-                token = intent.getStringExtra(RegistrationConstants.EXTRA_KEY_TOKEN);
-                if (!sentToken) {
-                    Log.d(TAG, "Registration failed.");
-                }
-            }
-        };
-        Log.d(TAG, "Register RegistrationReceiver");
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(RegistrationConstants.REGISTRATION_COMPLETE));
-
-
-
-
+//        // Not sure what this guy is for...
+//        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                boolean sentToken = intent.getBooleanExtra(
+//                        RegistrationConstants.SENT_TOKEN_TO_SERVER, false);
+//
+//                token = intent.getStringExtra(RegistrationConstants.EXTRA_KEY_TOKEN);
+//                if (!sentToken) {
+//                    Log.d(TAG, "Registration failed.");
+//                }
+//            }
+//        };
+//        Log.d(TAG, "Register RegistrationReceiver");
+//        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+//                new IntentFilter(RegistrationConstants.REGISTRATION_COMPLETE));
 
 
 
@@ -135,27 +129,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // Needs to be off main thread
-    // Uses RegistrationIntentService which needs to be excavated. Maybe thats where its happening
-    public void registerClient() {
+    public static String getServerUrl(String senderId) {
+        return senderId + "@gcm.googleapis.com";
+    }
 
+    // Needs to be off main thread
+    public void registerClient() {
         // Get the sender ID
         final String stringId = defaultIDName;
-
-//        // Register with GCM
-//        Intent intent = new Intent(getApplicationContext(), RegistrationIntentService.class);
-//        intent.putExtra(RegistrationConstants.SENDER_ID, senderID);
-//        intent.putExtra(RegistrationConstants.STRING_IDENTIFIER, stringId);
-//
-//        Log.d(TAG, "StartService");
-//        startService(intent);
 
         // Run off main thread
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    token = instanceID.getToken(senderID, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null); // TODO: MyID or target Server ID??
+                    token = InstanceID.getInstance(getApplicationContext()).getToken(senderID, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null); // TODO: MyID or target Server ID??
 
                     Log.d(TAG, "registerClient " + token);
                     Log.d(TAG, "registerClient " + senderID);
@@ -181,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    // Needs GoogleCloudMessaging object somereason
     public void unregisterClient() {
         // Create the bundle for registration with the server.
         Bundle unregistrationBundle = new Bundle();
@@ -197,45 +184,9 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             Log.e(TAG, "Message failed", e);
         }
-
     }
 
-    public static String getServerUrl(String senderId) {
-        return senderId + "@gcm.googleapis.com";
-    }
-
-    /**
-     * Check the device to make sure it has the Google Play Services APK. If
-     * it doesn't, display a dialog that allows users to download the APK from
-     * the Google Play Store or enable it in the device's system settings.
-     */
-    private void checkPlayServices() {
-        final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                        PLAY_SERVICES_RESOLUTION_REQUEST,
-                        new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialog) {
-                                finish();
-                            }
-                        }).show();
-            } else {
-                Log.w(TAG, "Google Play Services is required and not supported on this device.");
-            }
-        } else {
-            Log.d(TAG, "Google Play Services Present");
-        }
-    }
-
-    /**
-     * Sends an upstream message.
-     */
-    public void sendMessage() {
-        String text = "Test Message about Wiggles";
+    public void sendMessage(final String text) {
 
         // Create the bundle for sending the message.
         Bundle message = new Bundle();
@@ -253,9 +204,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void subscribeToTopic() {
-        final String topic = "/topics/myTopic";
-//        Log.d(TAG, "Try to subscribe to: " + topic);
+    public void subscribeToTopic(final String topic) {
 
         new Thread(new Runnable() {
             @Override
@@ -271,40 +220,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
-
-
-//        new SubscribeToTopicTask().execute();
     }
-
-//    /**
-//     * Subscribe the client to the passed topic.
-//     */
-//    private class SubscribeToTopicTask extends AsyncTask<String, Void, Boolean> {
-//        private String topic;
-//
-//        @Override
-//        protected Boolean doInBackground(String... params) {
-//            if (params.length > 0) {
-//                topic = params[0];
-//                Log.d(TAG, "Try to subscribe to: " + topic);
-//                Log.d(TAG, "With token: " + token);
-//                try {
-//                    pubSub.unsubscribe(token, topic);
-//                    return true;
-//                } catch (IOException e) {
-//                    Log.e(TAG, "Subscribe to topic failed", e);
-//                }
-//            }
-//            return false;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Boolean succeed) {
-//            if (succeed) {
-//                Log.d(TAG, "Subscribed to topic: " + topic);
-//            } else {
-//                Log.d(TAG, "Subscription to topic failed: " + topic);
-//            }
-//        }
-//    }
 }
