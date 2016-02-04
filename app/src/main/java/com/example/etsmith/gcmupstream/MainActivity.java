@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = getClass().getSimpleName();
 
     public final String defaultIdName = "wigglesTheCat";
-    public final String defaultTopic = "/topics/myTopic";
+    public final String defaultTopic = "myTopic";
     public final String defaultText = "Test Message about Wiggles";
     public final String senderIdSuffix = "@gcm.googleapis.com";
 
@@ -152,10 +152,10 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 while(token == null) { // Wait until registration has completed. Very kludgy solution.
                 }
-                Log.d(TAG, "Subscribing to: " + topic);
+                Log.d(TAG, "Subscribing to: " + Constants.TOPIC_ROOT + topic);
                 Log.d(TAG, "With Token:             " + token);
                 try {
-                    pubSub.subscribe(token, topic, null);
+                    pubSub.subscribe(token, Constants.TOPIC_ROOT + topic, null);
                 } catch (IOException e) {
                     Log.e(TAG, "Subscribe to topic failed", e);
                 }

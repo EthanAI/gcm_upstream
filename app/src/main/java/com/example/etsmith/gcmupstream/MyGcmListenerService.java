@@ -31,7 +31,7 @@ public class MyGcmListenerService extends GcmListenerService {
         super.onMessageReceived(from, data);
 
         for(String dataTag : data.keySet()) {
-            if(!dataTag.equals("notification")) {
+            if(!dataTag.equals(Constants.NOTIFICATION_BUNDLE)) {
                 Log.d(TAG, dataTag + ": " + data.getString(dataTag));
             } else {
                 Bundle bundle = data.getBundle(dataTag);
@@ -51,7 +51,7 @@ public class MyGcmListenerService extends GcmListenerService {
                 Constants.STATUS_UNREGISTERED.equals(status)) {
 //            token = "";
             Log.d(TAG, "Unregistration Success");
-        } else if(from.startsWith("/topics/")) {
+        } else if(from.startsWith(Constants.TOPIC_ROOT)) {
             Log.d(TAG, "Topic message: " + data.toString());
         } else {
             Log.d(TAG, "Other type of action: " + data.toString());

@@ -29,6 +29,6 @@ public class Constants {
     public static final String STATUS_UNREGISTERED = "unregistered";
 
     // Constants used by the demo GCM playground server
-    public static final String TITLE = "gcm.notification.title";
-    public static final String BODY = "gcm.notification.body";
+    public static final String NOTIFICATION_BUNDLE = "notification";
+    public static final String TOPIC_ROOT = "/topics/";
 }
