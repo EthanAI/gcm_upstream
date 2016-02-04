@@ -93,9 +93,9 @@ public class MainActivity extends AppCompatActivity {
                     // Create registrationBundle for registration with the server.
                     Bundle registrationBundle = new Bundle();
 
-                    registrationBundle.putString(RegistrationConstants.ACTION, RegistrationConstants.REGISTER_NEW_CLIENT);
-                    registrationBundle.putString(RegistrationConstants.REGISTRATION_TOKEN, token);
-                    registrationBundle.putString(RegistrationConstants.STRING_IDENTIFIER, stringId);
+                    registrationBundle.putString(Constants.ACTION, Constants.REGISTER_NEW_CLIENT);
+                    registrationBundle.putString(Constants.REGISTRATION_TOKEN, token);
+                    registrationBundle.putString(Constants.STRING_IDENTIFIER, stringId);
 
                     // Send the registrattion request
                     gcm.send(
@@ -116,8 +116,8 @@ public class MainActivity extends AppCompatActivity {
 
             // Create the bundle for registration with the server.
             Bundle unregistrationBundle = new Bundle();
-            unregistrationBundle.putString(RegistrationConstants.ACTION, RegistrationConstants.UNREGISTER_CLIENT);
-            unregistrationBundle.putString(RegistrationConstants.REGISTRATION_TOKEN, token);
+            unregistrationBundle.putString(Constants.ACTION, Constants.UNREGISTER_CLIENT);
+            unregistrationBundle.putString(Constants.REGISTRATION_TOKEN, token);
 
             // Send request to GCM
             gcm.send(
@@ -133,8 +133,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             // Create the bundle for sending the message.
             Bundle message = new Bundle();
-            message.putString(RegistrationConstants.ACTION, RegistrationConstants.UPSTREAM_MESSAGE);
-            message.putString(RegistrationConstants.EXTRA_KEY_MESSAGE, text);
+            message.putString(Constants.ACTION, Constants.UPSTREAM_MESSAGE);
+            message.putString(Constants.EXTRA_KEY_MESSAGE, text);
 
             gcm.send(
                     senderId + senderIdSuffix,

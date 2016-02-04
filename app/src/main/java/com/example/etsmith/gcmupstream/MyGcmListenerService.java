@@ -30,17 +30,25 @@ public class MyGcmListenerService extends GcmListenerService {
     public void onMessageReceived(String from, Bundle data) {
         super.onMessageReceived(from, data);
 
-//        Log.d(TAG, "data.toString(): " + data.toString());
-//        Log.d(TAG, "Received from >" + from + "< with >" + data.toString() + "<");
+        for(String dataTag : data.keySet()) {
+            if(!dataTag.equals("notification")) {
+                Log.d(TAG, dataTag + ": " + data.getString(dataTag));
+            } else {
+                Bundle bundle = data.getBundle(dataTag);
+                for(String bundleTag : bundle.keySet()) {
+                    Log.d(TAG, bundleTag + ": " + data.getString(bundleTag));
+                }
+            }
+        }
 
-        String action = data.getString(RegistrationConstants.ACTION);
-        String status = data.getString(RegistrationConstants.STATUS);
+        String action = data.getString(Constants.ACTION);
+        String status = data.getString(Constants.STATUS);
 
-        if (RegistrationConstants.REGISTER_NEW_CLIENT.equals(action) &&
-                RegistrationConstants.STATUS_REGISTERED.equals(status)) {
+        if (Constants.REGISTER_NEW_CLIENT.equals(action) &&
+                Constants.STATUS_REGISTERED.equals(status)) {
             Log.d(TAG, "Registration Success");
-        } else if (RegistrationConstants.UNREGISTER_CLIENT.equals(action) &&
-                RegistrationConstants.STATUS_UNREGISTERED.equals(status)) {
+        } else if (Constants.UNREGISTER_CLIENT.equals(action) &&
+                Constants.STATUS_UNREGISTERED.equals(status)) {
 //            token = "";
             Log.d(TAG, "Unregistration Success");
         } else if(from.startsWith("/topics/")) {

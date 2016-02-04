@@ -14,7 +14,7 @@
 
 package com.example.etsmith.gcmupstream;
 
-public class RegistrationConstants {
+public class Constants {
 
     public static final String STRING_IDENTIFIER = "stringIdentifier";
     public static final String EXTRA_KEY_MESSAGE = "message";
@@ -28,4 +28,7 @@ public class RegistrationConstants {
     public static final String STATUS_REGISTERED = "registered";
     public static final String STATUS_UNREGISTERED = "unregistered";
 
+    // Constants used by the demo GCM playground server
+    public static final String TITLE = "gcm.notification.title";
+    public static final String BODY = "gcm.notification.body";
 }
