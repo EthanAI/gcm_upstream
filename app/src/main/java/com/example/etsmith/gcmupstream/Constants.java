@@ -16,6 +16,7 @@ package com.example.etsmith.gcmupstream;
 
 public class Constants {
 
+    public static final String SENDER_ID = "senderId";
     public static final String STRING_IDENTIFIER = "stringIdentifier";
     public static final String EXTRA_KEY_MESSAGE = "message";
 
@@ -31,4 +32,7 @@ public class Constants {
     // Constants used by the demo GCM playground server
     public static final String NOTIFICATION_BUNDLE = "notification";
     public static final String TOPIC_ROOT = "/topics/";
+
+    public static final String senderIdSuffix = "@gcm.googleapis.com";
+
 }

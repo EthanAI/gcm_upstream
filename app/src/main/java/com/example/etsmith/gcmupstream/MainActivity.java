@@ -14,8 +14,12 @@ import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.gcm.OneoffTask;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
 import com.google.android.gms.iid.InstanceID;
 
 import java.io.IOException;
@@ -26,13 +30,13 @@ public class MainActivity extends AppCompatActivity {
     public final String defaultIdName = "wigglesTheCat";
     public final String defaultTopic = "myTopic";
     public final String defaultText = "Test Message about Wiggles";
-    public final String senderIdSuffix = "@gcm.googleapis.com";
 
     public String senderId;
     public String token = null;
 
     public GoogleCloudMessaging gcm;
     public GcmPubSub pubSub;
+    public GcmNetworkManager mGcmNetworkManager;
 
     // Handle button clicks
     public void onClick(View view) {
@@ -66,11 +70,13 @@ public class MainActivity extends AppCompatActivity {
         // Get singetons
         gcm = GoogleCloudMessaging.getInstance(this);
         pubSub = GcmPubSub.getInstance(this);
+        mGcmNetworkManager = GcmNetworkManager.getInstance(this);
 
 //        unregisterClient();
 
         registerClient();
         subscribeToTopic(defaultTopic);
+        sendNetworkManagedTask();
 //        sendMessage();
 
     }
@@ -99,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // Send the registrattion request
                     gcm.send(
-                            senderId + senderIdSuffix,
+                            senderId + Constants.senderIdSuffix,
                             String.valueOf(System.currentTimeMillis()),
                             registrationBundle);
 
@@ -121,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Send request to GCM
             gcm.send(
-                    senderId + senderIdSuffix,
+                    senderId + Constants.senderIdSuffix,
                     String.valueOf(System.currentTimeMillis()),
                     unregistrationBundle);
         } catch (IOException e) {
@@ -137,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             message.putString(Constants.EXTRA_KEY_MESSAGE, text);
 
             gcm.send(
-                    senderId + senderIdSuffix,
+                    senderId + Constants.senderIdSuffix,
                     String.valueOf(System.currentTimeMillis()),
                     message);
             Log.d(TAG, "Message sent " + text);
@@ -161,5 +167,34 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+    public void sendNetworkManagedTask() {
+        String messageText = "My message is about the cat named Wiggles!";
+
+        Bundle bundle = new Bundle();
+        bundle.putString(Constants.SENDER_ID, senderId);
+        bundle.putString(Constants.EXTRA_KEY_MESSAGE, messageText);
+
+        OneoffTask task = new OneoffTask.Builder()
+                .setService(MyGcmTaskService.class)
+                .setExtras(bundle)
+                .setTag("UMMM, MyTask?")
+                .setExecutionWindow(0, 60)
+                .setRequiredNetwork(Task.NETWORK_STATE_UNMETERED)
+                .build();
+
+        mGcmNetworkManager.schedule(task);
+
+
+//        PeriodicTask task = new PeriodicTask.Builder()
+//                .setService(MyGcmTaskService.class)
+//                .setTag(TASK_TAG_PERIODIC)
+//                .setPeriod(5L)
+//                .build();
+//
+//        mGcmNetworkManager.schedule(task);
+
+
     }
 }

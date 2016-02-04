@@ -18,8 +18,11 @@ package com.example.etsmith.gcmupstream;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
@@ -27,8 +30,15 @@ public class MyGcmListenerService extends GcmListenerService {
     private final String TAG = getClass().getSimpleName();
 
     @Override
-    public void onMessageReceived(String from, Bundle data) {
+    public void onMessageReceived(String from, final Bundle data) {
         super.onMessageReceived(from, data);
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            public void run() {
+                Toast.makeText(getApplicationContext(), "Message Received: " + data.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
         for(String dataTag : data.keySet()) {
             if(!dataTag.equals(Constants.NOTIFICATION_BUNDLE)) {
