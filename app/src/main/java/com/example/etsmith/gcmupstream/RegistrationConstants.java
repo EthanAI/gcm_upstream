@@ -16,15 +16,8 @@ package com.example.etsmith.gcmupstream;
 
 public class RegistrationConstants {
 
-    public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
-    public static final String REGISTRATION_COMPLETE = "registrationComplete";
-    public static final String SENDER_ID = "senderId";
     public static final String STRING_IDENTIFIER = "stringIdentifier";
-    public static final String NEW_DOWNSTREAM_MESSAGE = "newDownstreamMessage";
     public static final String EXTRA_KEY_MESSAGE = "message";
-
-    public static final String EXTRA_KEY_TOKEN = "TOKEN";
-    public static final String EXTRA_KEY_BUNDLE = "BUNDLE";
 
     public static final String REGISTER_NEW_CLIENT = "register_new_client";
     public static final String UNREGISTER_CLIENT = "unregister_client";

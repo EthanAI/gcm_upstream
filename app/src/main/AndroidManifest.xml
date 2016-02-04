@@ -40,17 +40,6 @@
             </intent-filter>
         </service>
 
-        <!-- Handle the creation, rotation, and updating of registration tokens -->
-        <service
-            android:name="com.example.etsmith.gcmupstream.MyInstanceIDListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
-            </intent-filter>
-        </service><service
-            android:name="com.example.etsmith.gcmupstream.RegistrationIntentService"
-            android:exported="false">
-        </service>
     </application>
 
 </manifest>

@@ -24,27 +24,34 @@ import android.util.Log;
 import com.google.android.gms.gcm.GcmListenerService;
 
 public class MyGcmListenerService extends GcmListenerService {
+    private final String TAG = getClass().getSimpleName();
 
-    private static final String TAG = "MyGcmListenerService";
-
-    /**
-     * Called when message is received.
-     *
-     * @param from SenderID of the sender.
-     * @param data Data bundle containing message data as key/value pairs.
-     *             For Set of keys use data.keySet().
-     */
     @Override
     public void onMessageReceived(String from, Bundle data) {
         super.onMessageReceived(from, data);
 
-        Log.d(TAG, data.toString());
+//        Log.d(TAG, "data.toString(): " + data.toString());
+//        Log.d(TAG, "Received from >" + from + "< with >" + data.toString() + "<");
 
-        Intent downstreamMessageIntent = new Intent(RegistrationConstants.NEW_DOWNSTREAM_MESSAGE);
-        downstreamMessageIntent.putExtra(RegistrationConstants.SENDER_ID, from);
-        downstreamMessageIntent.putExtra(RegistrationConstants.EXTRA_KEY_BUNDLE, data);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(downstreamMessageIntent);
+        String action = data.getString(RegistrationConstants.ACTION);
+        String status = data.getString(RegistrationConstants.STATUS);
+
+        if (RegistrationConstants.REGISTER_NEW_CLIENT.equals(action) &&
+                RegistrationConstants.STATUS_REGISTERED.equals(status)) {
+            Log.d(TAG, "Registration Success");
+        } else if (RegistrationConstants.UNREGISTER_CLIENT.equals(action) &&
+                RegistrationConstants.STATUS_UNREGISTERED.equals(status)) {
+//            token = "";
+            Log.d(TAG, "Unregistration Success");
+        } else if(from.startsWith("/topics/")) {
+            Log.d(TAG, "Topic message: " + data.toString());
+        } else {
+            Log.d(TAG, "Other type of action: " + data.toString());
+        }
     }
 
-
+    @Override
+    public void onSendError(String msgId, String error) {
+        Log.d(TAG, "onSendError: " + msgId + " " + error);
+    }
 }
